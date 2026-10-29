@@ -2,31 +2,28 @@ package com.chemicalmanagement.app;
 
 import com.chemicalmanagement.domain.*;
 import com.chemicalmanagement.domain.QualityTestResult;
+import com.chemicalmanagement.service.QualityControlService;
+
+import java.sql.Array;
 import java.time.LocalDate;
 
 import java.sql.SQLOutput;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
 
 
         try {
-            // Chemical
+            // Create a Chemical
             Chemical chemical = new Chemical(
                     "CHEM-001",
                     "Industrial Solvent X ",
                     "Litres",
                     180);
 
-            System.out.println("------------");
-            System.out.println(chemical.getchemicalId());
-            System.out.println(chemical.getName());
-            System.out.println(chemical.getUnit());
-            System.out.println(chemical.getshelfLifeDays());
-
-            System.out.println("Chemical registered successfully");
-
-            // Batch
+            // Create a production Batch
             ProductionBatch batch = new ProductionBatch(
                     "BATCH-001",
                     chemical,
@@ -34,61 +31,84 @@ public class Main {
                     500.0
                     );
 
-            System.out.println("------------");
-            System.out.println("Batch Number - " + batch.getBatchNumber());
-            System.out.println("Chemical - " + batch.getchemical().getName());
-            System.out.println("manufacturing Date - " + batch.getManufacturingDate());
-            System.out.println("Quantity - " + batch.getQuantity());
-            System.out.println("Quality Status - " + batch.getqualityStatus());
-            System.out.println("Expiry Date - " + batch.getExpirydate());
+//            batch.setQuantity(450.0);
+//            batch.setQualityStatus(QualityStatus.PASSED);
 
-            batch.setQuantity(450.0);
-            batch.setQualityStatus(QualityStatus.PASSED);
-
-            System.out.println("After Updation");
-            System.out.println("Quantity - " + batch.getQuantity());
-            System.out.println("Quality Status - " + batch.getqualityStatus());
-
-            System.out.println("Production Batch Created Successfully");
-
-            // Quality Test
-            QualityTest test = new QualityTest(
+            //Define required quality tests
+            QualityTest purityTest = new QualityTest(
                     "TEST-001",
                     "Purity",
                     95.0,
                     100.0,"%");
 
-            System.out.println("---------------------------");
-            System.out.println("TestID - " + test.getTestID());
-            System.out.println("Test Name - " + test.getTestName());
-            System.out.println("Maximum Acceptable Value - " + test.getMaximumAcceptableValue());
-            System.out.println("Minimum Acceptable Value - " + test.getMinimumAcceptableValue());
-            System.out.println("Unit - " + test.getUnit());
+            QualityTest viscosityTest = new QualityTest(
+                    "TEST-002",
+                    "viscosity",
+                    10.0,
+                    20.0,"%");
 
-            // purity test -- testing
-            System.out.println("88% " + test.isWithinAcceptableLimit(88));
-            System.out.println("91% " + test.isWithinAcceptableLimit(91));
-            System.out.println("95 " + test.isWithinAcceptableLimit(95));
-            System.out.println("98% " + test.isWithinAcceptableLimit(98));
-            System.out.println("100% " + test.isWithinAcceptableLimit(100));
-            System.out.println("110% " + test.isWithinAcceptableLimit(110));
-            System.out.println("-88% " + test.isWithinAcceptableLimit(-88));
+            QualityTest densityTest = new QualityTest(
+                    "TEST-003",
+                    "density",
+                    1.0,
+                    2.0,"%");
 
-
-
-            //test -- result
+            // record test results
             QualityTestResult result1 = new QualityTestResult(
                     "QTR-001",
                     batch,
-                    test,
-                    Double.NEGATIVE_INFINITY
+                    purityTest,
+                    99
                     );
-            System.out.println("---------------------------");
-            System.out.println("resultID: " + result1.getResultId());
-            System.out.println("ProductionBatch Name: " + result1.getBatch().getBatchNumber());
-            System.out.println("Quality Test Name: " + result1.getQualityTest().getTestName());
-            System.out.println("Measured Value: " + result1.getMeasuredValue());
-            System.out.println("Passed 0r Failed: " + result1.isPassed());
+
+            QualityTestResult result2 = new QualityTestResult(
+                    "QTR-002",
+                    batch,
+                    viscosityTest,
+                    12
+            );
+
+            QualityTestResult result3 = new QualityTestResult(
+                    "QTR-003",
+                    batch,
+                    densityTest,
+                    2
+            );
+
+//            System.out.println("-------------------------------------");
+//            for (int i=0; i<=result.size(); i++){
+//                System.out.println(result.get(i).getResultId());
+//                System.out.println(result.get(i).getBatch().getBatchNumber());
+//                System.out.println(result.get(i).getQualityTest().getTestName());
+//                System.out.println(result.get(i).getMeasuredValue());
+//                System.out.println(result.get(i).isPassed());
+//
+//                System.out.println("--------");
+//            }
+//            System.out.println(result.size());
+
+            // Store all required tests
+            List<QualityTest> requiredTests = new ArrayList<>();
+            requiredTests.add(purityTest);
+            requiredTests.add(viscosityTest);
+            requiredTests.add(densityTest);
+
+            // Store all recorded results
+           List<QualityTestResult> results = new ArrayList<>();
+            results.add(result1);
+            results.add(result2);
+            results.add(result3);
+
+            // Evaluate the batch quality
+            QualityControlService service = new QualityControlService();
+            service.evaluateBatch(batch, requiredTests, results);
+
+            // Display the final quality status
+            System.out.println(batch.getqualityStatus());
+
+
+
+
 
 
         } catch (IllegalArgumentException e){
@@ -103,4 +123,7 @@ public class Main {
 
 
 
-    }}
+    }
+
+
+}

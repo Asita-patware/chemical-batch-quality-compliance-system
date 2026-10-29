@@ -1,5 +1,7 @@
 package com.chemicalmanagement.domain;
 
+import java.sql.SQLException;
+
 public class QualityTest {
 
     private final String testId;
@@ -62,6 +64,8 @@ public class QualityTest {
         return measuredValue >= minimumAcceptableValue
                 && measuredValue <= maximumAcceptableValue;
     }
+
+
 
 
 }

@@ -1,4 +1,5 @@
 package com.chemicalmanagement.domain;
+
 import java.time.LocalDate;
 
 public class ProductionBatch {
@@ -28,6 +29,8 @@ public class ProductionBatch {
         if (quantity <= 0 || !Double.isFinite(quantity)) {
             throw new IllegalArgumentException("Quantity must be a finite number or greater than zero");
         }
+
+
 
         this.batchNumber = batchNumber;
         this.chemical = chemical;
@@ -73,10 +76,12 @@ public class ProductionBatch {
 
     public void setQualityStatus(QualityStatus qualityStatus){
         if (qualityStatus == null){
-            throw new IllegalArgumentException("Quantity must be a finite number or greater than zero");
+            throw new IllegalArgumentException("Quality status can not be null");
         }
         this.qualityStatus = qualityStatus;
     }
+
+
 
 }
 
